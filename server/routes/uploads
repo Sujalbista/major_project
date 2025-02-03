@@ -1,0 +1,55 @@
+const express = require("express");
+const router = express.Router();
+const multer = require("multer");
+const path = require("path");
+const { spawn } = require("child_process");
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
+});
+const upload = multer({ storage });
+
+router.post("/upload", upload.single("image"), (req, res) => {
+  const file = req.file;
+  const prompt = req.body.prompt;
+
+  if (!file) {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+
+  const inputPath = path.join(__dirname, "..", file.path); // Go up one level for uploads
+  const outputPath = path.join(__dirname, "..", "uploads", "output-" + Date.now() + ".png"); // Go up one level for uploads
+
+
+  const pythonProcess = spawn("python", ["generate_image.py", inputPath, outputPath]);
+
+  pythonProcess.stdout.on("data", (data) => console.log(`Python output: ${data}`));
+  pythonProcess.stderr.on("data", (data) => console.error(`Python error: ${data}`));
+
+  pythonProcess.on("close", (code) => {
+    if (code === 0) {
+      res.json({
+        message: "Image processed successfully",
+        generatedImage: `/uploads/output-${Date.now()}.png`,
+      });
+    } else {
+      console.error("Python process exited with code", code);
+      res.status(500).json({ error: "Error processing image" });
+    }
+  });
+
+  pythonProcess.on('error', (err) => {
+    console.error('Error starting Python script:', err);
+    res.status(500).json({ error: "Error starting Python process" });
+  });
+  const generatedFilePath = `/uploads/generated-${file.filename}`;
+  res.json({
+    message: "File and prompt uploaded successfully",
+    originalFile: `/uploads/${file.filename}`,
+    filePath: generatedFilePath,
+    prompt,
+  });
+});
+
+module.exports = router;
