@@ -19,7 +19,9 @@
    install.bat
 
 ```
-
+```
+3. For Database
+```
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 XAMPP
 -- Create the database
