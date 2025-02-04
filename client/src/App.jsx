@@ -111,7 +111,7 @@ function App() {
               </p>
               <p className="text-green-400 text-xl mb-6">
                 Server Status:{" "}
-                <p
+                <span
                   className={`${
                     serverStatus === "running"
                       ? "text-green-600"
@@ -119,7 +119,7 @@ function App() {
                   } font-semibold`}
                 >
                   {serverMessage}
-                </p>
+                </span>
               </p>
               <FileUpload user={user} isLoggedIn={isLoggedIn} />
             </div>

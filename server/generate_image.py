@@ -6,6 +6,8 @@ from diffusers import StableDiffusionControlNetPipeline, ControlNetModel
 from diffusers.utils import load_image
 import numpy as np
 import torch
+import traceback
+
 
 def process_image(input_path, output_path, prompt):  # Add prompt parameter
     try:
@@ -15,17 +17,15 @@ def process_image(input_path, output_path, prompt):  # Add prompt parameter
         print(f"Simulating AI processing with prompt: {prompt}")  # Print the prompt for verification
         torch.cuda.empty_cache()
     # Load ControlNet model with torch.float16
-        controlnet = ControlNetModel.from_pretrained(
-            "ManojKhanal/controlnet_dresscode",
-            torch_dtype=torch.float32  # Use Half precision
-        )
+        try:
+            controlnet = ControlNetModel.from_pretrained("ManojKhanal/controlnet_dresscode",torch_dtype=torch.float32 )
 
-    # Load Stable Diffusion pipeline with ControlNet and torch.float16
-        pipe = StableDiffusionControlNetPipeline.from_pretrained(
-            "stabilityai/stable-diffusion-2-1",
-            controlnet=controlnet,
-            torch_dtype=torch.float32 # Use Half precision
-        ).to("cuda")  # Move to GPU
+            pipe = StableDiffusionControlNetPipeline.from_pretrained("stabilityai/stable-diffusion-2-1",controlnet=controlnet,torch_dtype=torch.float32).to("cuda")
+
+        except Exception as e:
+            print(f"Error loading models: {e}")
+            traceback.print_exc()
+            return None
 
     # ✅ Enable memory optimizations
         pipe.enable_attention_slicing()  # ✅ Reduces VRAM usage
@@ -53,6 +53,7 @@ def process_image(input_path, output_path, prompt):  # Add prompt parameter
         return None  # Indicate failure
     except Exception as e:
         print(f"Error during image processing: {e}")
+        traceback.print_exc()
         return None  # Indicate failure
 
 
