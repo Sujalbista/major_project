@@ -12,11 +12,7 @@
 
    ```
 
-2. Run the install.bat script:
-   batch
-   Copy
-   Edit
-   install.bat
+2. Run the install.bat script
 
 3. For Database
 ```
