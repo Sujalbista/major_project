@@ -63,11 +63,11 @@ function App() {
       {/* Navigation */}
       <nav className="bg-gray-800 py-4">
         <div className="flex justify-center space-x-6">
-          <Link to="/" className="text-blue-400 hover:text-blue-600">
-            Home
-          </Link>
           {!isLoggedIn ? (
             <>
+              <Link to="/" className="text-blue-400 hover:text-blue-600">
+                Home
+              </Link>
               <Link to="/login" className="text-blue-400 hover:text-blue-600">
                 Login
               </Link>
@@ -80,6 +80,12 @@ function App() {
             </>
           ) : (
             <>
+              <button
+                onClick={() => navigate("/")}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                Home
+              </button>
               <button
                 onClick={() => navigate("/logs")}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"

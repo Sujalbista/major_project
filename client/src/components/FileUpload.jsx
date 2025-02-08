@@ -63,7 +63,7 @@ const FileUpload = ({ user, isLoggedIn }) => {
       console.log("Server response:", response.data); // Debugging
 
       if (response.data.generatedImage) {
-        const imageUrl = `http://localhost:5000/${response.data.generatedImage}`;
+        const imageUrl = `http://localhost:5000${response.data.generatedImage}`;
         console.log("Generated Image URL:", imageUrl);
 
         setGeneratedImage(imageUrl);

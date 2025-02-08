@@ -217,7 +217,7 @@ app.post(
   async (req, res) => {
     const file = req.file;
     const prompt = req.body.prompt;
-    const userId = req.user; // Get userId from authentication middleware
+    const userId = req.user;
 
     if (!file) {
       return res.status(400).json({ error: "No file uploaded" });
@@ -227,28 +227,43 @@ app.post(
       return res.status(400).json({ error: "No prompt provided" });
     }
 
-    if (!fs.existsSync("uploads")) {
-      fs.mkdirSync("uploads");
-    }
-    // Make sure the uploads directory exists (important!)
-    const originalImagePath = path.join("uploads", file.filename); // Relative path for the uploaded image
+    const originalImagePath = path.join("uploads", file.filename);
     const generatedImagePath = path.join(
       "uploads",
       `generated_${file.filename}`
     );
-    fs.renameSync(file.path, originalImagePath);
-    originalImageUrl = path.join("/", originalImagePath);
-    generatedImageUrl = path.join("/", generatedImagePath);
+
+    fs.renameSync(file.path, originalImagePath); // Rename file after path is correct
+
     const pythonProcess = spawn("python", [
       "generate_image.py",
-      originalImagePath, // Pass the absolute path
-      generatedImagePath, // Pass the absolute path
+      originalImagePath,
+      generatedImagePath,
       prompt,
     ]);
 
+    let pythonStdout = ""; // Capture stdout
+    let pythonStderr = ""; // Capture stderr
+
+    pythonProcess.stdout.on("data", (data) => {
+      pythonStdout += data.toString(); // Convert Buffer to string
+      console.log(`Python (stdout): ${data}`); // Log to server console
+    });
+
+    pythonProcess.stderr.on("data", (data) => {
+      pythonStderr += data.toString(); // Convert Buffer to string
+      console.error(`Python (stderr): ${data}`); // Log errors to server console
+    });
+
     pythonProcess.on("close", async (code) => {
+      console.log(`Python process exited with code ${code}`); // Log exit code
+
       if (code === 0) {
         try {
+          // Construct URL paths – ensure correct base URL
+          const originalImageUrl = `/uploads/${file.filename}`; // Relative path
+          const generatedImageUrl = `/uploads/generated_${file.filename}`; // Relative path
+
           await db.query(
             "INSERT INTO image_logs (user_id, prompt, original_image, generated_image, timestamp) VALUES (?,?,?,?, NOW())",
             [userId, prompt, originalImageUrl, generatedImageUrl]
@@ -256,8 +271,8 @@ app.post(
 
           res.json({
             message: "Image processed and log saved successfully",
-            generatedImage: generatedImagePath,
-            originalFile: originalImagePath,
+            generatedImage: generatedImageUrl, // Send relative URL
+            originalFile: originalImageUrl, // Send relative URL
           });
         } catch (dbError) {
           console.error("Error saving log to database:", dbError);
@@ -265,7 +280,12 @@ app.post(
         }
       } else {
         console.error("Python process exited with code", code);
-        res.status(500).json({ error: "Error processing image" });
+        console.error("Python stderr output:", pythonStderr); // Log stderr for debugging
+
+        res.status(500).json({
+          error: "Error processing image",
+          pythonError: pythonStderr, // Include Python error in response
+        });
       }
     });
 
@@ -275,7 +295,6 @@ app.post(
     });
   }
 );
-
 app.get("/api/logs/:userId", authenticate, async (req, res) => {
   const userId = req.params.userId;
 

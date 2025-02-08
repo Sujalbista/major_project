@@ -10,7 +10,9 @@ import traceback
 
 
 def process_image(input_path, output_path, prompt):  # Add prompt parameter
+    
     try:
+        print(torch.cuda.memory_summary(device=None, abbreviated=False))
         img = Image.open(input_path)
         print(f"Paths:{input_path},{output_path},{prompt}")
         # Simulate AI processing (replace with actual AI model when ready)
@@ -18,9 +20,9 @@ def process_image(input_path, output_path, prompt):  # Add prompt parameter
         torch.cuda.empty_cache()
     # Load ControlNet model with torch.float16
         try:
-            controlnet = ControlNetModel.from_pretrained("ManojKhanal/controlnet_dresscode",torch_dtype=torch.float32 )
+            controlnet = ControlNetModel.from_pretrained("ManojKhanal/controlnet_dresscode",torch_dtype=torch.float16 )
 
-            pipe = StableDiffusionControlNetPipeline.from_pretrained("stabilityai/stable-diffusion-2-1",controlnet=controlnet,torch_dtype=torch.float32).to("cuda")
+            pipe = StableDiffusionControlNetPipeline.from_pretrained("stabilityai/stable-diffusion-2-1",controlnet=controlnet,torch_dtype=torch.float16).to("cuda")
 
         except Exception as e:
             print(f"Error loading models: {e}")
@@ -43,7 +45,7 @@ def process_image(input_path, output_path, prompt):  # Add prompt parameter
         control_image = control_image.to("cuda", dtype=torch.float16)  # Move to GPU & use float16
 
     # ✅ Generate image with correct format
-        generated_image = pipe(prompt, image=control_image, num_inference_steps=20).images[0]
+        generated_image = pipe(prompt, image=control_image, num_inference_steps=10).images[0]
         generated_image.save(output_path)
         # Placeholder AI logic (for now, just rotate and save)
         
