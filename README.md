@@ -7,8 +7,8 @@
 1. Clone the repository to your local machine.
 
    ```batch
-   git clone https://github.com/username/my-project.git
-   cd my-project
+   git clone https://github.com/Sujalbista/major_project.git
+   cd major_project
 
    ```
 
