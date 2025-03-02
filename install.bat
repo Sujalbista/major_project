@@ -8,7 +8,10 @@ npm install
 echo Installing server dependencies...
 cd ..\server
 npm install
-
+python -m venv venv  # Create a new virtual environment
+source venv/bin/activate  # (Mac/Linux) Activate it
+venv\Scripts\activate  # (Windows) Activate it
+pip install -r requirements.txt  # Install dependencies
 :: Go back to the client folder
 cd ..\client
 
@@ -23,3 +26,4 @@ start npm start
 
 echo Project is now running. Press any key to close the window...
 pause
+

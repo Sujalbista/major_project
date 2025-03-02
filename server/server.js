@@ -235,7 +235,7 @@ app.post(
 
     fs.renameSync(file.path, originalImagePath); // Rename file after path is correct
 
-    const pythonProcess = spawn("python", [
+    const pythonProcess = spawn("venv\\Scripts\\python", [
       "generate_image.py",
       originalImagePath,
       generatedImagePath,

@@ -12,6 +12,10 @@ import traceback
 def process_image(input_path, output_path, prompt):  # Add prompt parameter
     
     try:
+        if torch.cuda.is_available():
+            print("CUDA is available. Running on:", torch.cuda.get_device_name(0))
+        else:
+            print("CUDA is NOT available. Running on CPU.")
         print(torch.cuda.memory_summary(device=None, abbreviated=False))
         img = Image.open(input_path)
         print(f"Paths:{input_path},{output_path},{prompt}")
