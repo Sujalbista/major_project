@@ -8,6 +8,16 @@ import numpy as np
 import torch
 import traceback
 
+def resize_image_maintain_aspect(image, target_height=512, target_width=512):
+    # Get original dimensions
+    width, height = image.size
+
+    # Calculate new width while maintaining aspect ratio
+    new_width = int((target_height / height) * width)
+
+    # Resize the image
+    resized_image = image.resize((target_width, target_height), Image.LANCZOS)
+    return resized_image
 
 def process_image(input_path, output_path, prompt):  # Add prompt parameter
     
@@ -42,7 +52,7 @@ def process_image(input_path, output_path, prompt):  # Add prompt parameter
 
     # Load input control image
         control_image = load_image(input_path).convert("RGB")
-
+        control_image = resize_image_maintain_aspect(control_image)
     # ✅ Convert image to NumPy & normalize (ensure proper format)
         control_image = np.array(control_image) / 255.0  # Normalize to [0,1]
         control_image = torch.tensor(control_image).permute(2, 0, 1).unsqueeze(0)  # Convert to PyTorch tensor
