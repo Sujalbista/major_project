@@ -1,6 +1,18 @@
-# React + Vite
+# SketchStyleAI
 
-# My Project
+This project demonstrates a deep learning approach to generating realistic clothing images based on a combination of hand-drawn sketches and textual descriptions. Utilizing Stable Diffusion with ControlNet, the system takes a sketch and a descriptive prompt as input and outputs a high-quality, contextually accurate image of the clothing item.
+
+# Features
+
+Generate clothing images conditioned on both sketch input and text description
+
+Combines visual structure (from sketches) with semantic meaning (from text)
+
+Uses Stable Diffusion + ControlNet for controllable image generation
+
+Trained on custom datasets of clothing sketches, images, and text labels
+
+Evaluation metrics include FID, SSIM, CLIP, and FSIM for quality validation
 
 ## Steps to run the project on Windows
 
@@ -15,6 +27,7 @@
 2. Run the install.bat script
 
 3. For Database
+
 ```
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 XAMPP
@@ -44,3 +57,4 @@ CREATE TABLE image_logs (
 );
 
 
+```
