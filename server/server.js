@@ -306,7 +306,10 @@ app.get("/api/logs/:userId", authenticate, async (req, res) => {
 
     // Prepend localhost URL to image paths
     const logsWithFullPath = logs.map((log) => ({
-      ...log,
+      id: log.id, // <-- explicitly add ID
+      userId: log.user_id,
+      createdAt: log.timestamp,
+      prompt: log.prompt,
       originalImage: `http://localhost:5000${log.original_image}`,
       generatedImage: `http://localhost:5000${log.generated_image}`,
     }));
@@ -315,6 +318,23 @@ app.get("/api/logs/:userId", authenticate, async (req, res) => {
   } catch (err) {
     console.error("Error fetching logs:", err);
     res.status(500).json({ error: "Error fetching logs" });
+  }
+});
+app.delete("/api/logs/:logId", authenticate, async (req, res) => {
+  const logId = req.params.logId;
+
+  try {
+    const [result] = await db.query("DELETE FROM image_logs WHERE id = ?", [
+      logId,
+    ]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Log not found" });
+    }
+
+    res.json({ message: "Log deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting log:", err);
+    res.status(500).json({ error: "Error deleting log" });
   }
 });
 
